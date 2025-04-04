@@ -1,0 +1,8 @@
+.env
+.DS_Store
+.vagrant/
+script_rm_clean.sh
+setup_project.sh
+images-docker/wordpress/nginx.conf
+images-docker/wordpress/php-fpm.conf
+images-docker/wordpress/supervisord.conf
