@@ -2,49 +2,55 @@
 FROM ubuntu:20.04
 
 # Infos sur le mainteneur
-LABEL maintainer="ton-email@example.com"
+LABEL maintainer="josephjeanmardochee@gmail.com"
 
-# Variables d’environnement
-ENV DEBIAN_FRONTEND=noninteractive
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Europe/Paris 
 
-# Mise à jour & installation des paquets nécessaires
-RUN apt-get update && apt-get install -y \
-    nginx \
-    php \
-    php-fpm \
-    php-mysql \
-    php-curl \
-    php-gd \
-    php-mbstring \
-    php-xml \
-    php-zip \
-    php-soap \
-    php-intl \
-    mysql-client \
-    curl \
-    unzip \
-    supervisor \
+RUN apt-get update && apt-get upgrade -y
+
+# Installation des dépendances pour WordPress
+RUN apt-get install -y --no-install-recommends \
     wget \
-    vim \
-    && apt-get clean
+    curl \
+    gnupg \
+    apache2 \
+    libapache2-mod-php \
+    php-mysql \
+    php-fpm \
+    php-cli \
+    php-gd \
+    php-xml \
+    php-mbstring \
+    php-intl \
+    php-zip \
+    unzip
 
-# Télécharger WordPress
-RUN curl -O https://wordpress.org/latest.tar.gz && \
-    tar -xzf latest.tar.gz && \
-    mv wordpress /var/www/html && \
+# Téléchargement et installation de WordPress
+RUN wget https://wordpress.org/latest.tar.gz && \
+    tar -xzvf latest.tar.gz -C /var/www/html/ && \
     rm latest.tar.gz
 
-# Définir les permissions
-RUN chown -R www-data:www-data /var/www/html && \
-    chmod -R 755 /var/www/html
+# Configuration d'Apache
+RUN a2enmod rewrite
+COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
+RUN a2ensite 000-default.conf
+RUN a2dissite 000-default.conf
 
-# Copie des fichiers de config
-COPY nginx.conf /etc/nginx/sites-available/default
-COPY php-fpm.conf /etc/php/7.4/fpm/php-fpm.conf
-COPY supervisord.conf /etc/supervisord.conf
+# Configuration des permissions (ajustez selon vos besoins)
+RUN chown -R www-data:www-data /var/www/html/
+RUN find /var/www/html/ -type d -exec chmod 755 {} +
+RUN find /var/www/html/ -type f -exec chmod 644 {} +
+RUN chown -R www-data:www-data /var/log/apache2/
 
-# Expose le port HTTP
+# Configuration PHP (facultatif, personnalisez selon vos besoins)
+# COPY php.ini /usr/local/etc/php/
+
+# Nettoyage
+RUN apt-get autoremove -y && apt-get clean
+
+WORKDIR /var/www/html
+
 EXPOSE 80
 
-# Commande de démarrage
-CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisord.conf"]
+CMD ["apache2-foreground"]

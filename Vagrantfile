@@ -4,8 +4,8 @@ BOX_VERSION    = "20240821.0.1"
 VM_NAME        = "vm-registry"
 VM_HOSTNAME    = "jean"
 VM_IP          = "192.168.56.10"
-VM_MEMORY      = 4096
-VM_CPUS        = 4
+VM_MEMORY      = 2048
+VM_CPUS        = 2
 SETUP_PROJECT_SCRIPT = "setup_project.sh"
 
 Vagrant.configure("2") do |config|
@@ -37,8 +37,5 @@ Vagrant.configure("2") do |config|
     echo "L'envoi des images docker est en cours en arrière-plan..."
     echo "**************************************************************************************************"
     echo "Faire 'vagrant ssh' pour se connecter"
-    echo "**************************************************************************************************"
-    echo "Check in a browser ==>  http://192.168.56.10:8284"
-    echo "**************************************************************************************************"
   SHELL
 end
