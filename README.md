@@ -5,7 +5,7 @@ This repository hosts a simple `index.html` file exposed via GitHub Pages to pre
 ## Project Information
 
 
-- **Live Page:** [GitHub Pages](https://jean1084.github.io)
+- **Live Page:** [GitHub Pages](https://registry-jean.github.io)
 - **Purpose:** Displays information about my private Docker registry.
 
 ## Usage
