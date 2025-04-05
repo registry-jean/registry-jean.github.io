@@ -17,6 +17,10 @@ Vagrant.configure("2") do |config|
   # Synchronisation du fichier .env via un lien symbolique
   config.vm.synced_folder ".", "/home/vagrant/workspace", type: "virtualbox"
   config.vm.provision "shell", inline: <<-SHELL
+    echo "Nettoyer les paquets inutiles pour libérer de l'espace..."
+    sudo apt-get update -y && sudo apt-get upgrade -y
+    sudo apt-get autoremove -y
+    sudo apt-get autoclean -y
     ln -sf /home/vagrant/workspace/.env /home/vagrant/.env
   SHELL
 
@@ -31,9 +35,6 @@ Vagrant.configure("2") do |config|
 
     # Vérification et installation de Docker si nécessaire
   config.vm.provision "shell", inline: <<-SHELL
-    echo "Nettoyer les paquets inutiles pour libérer de l'espace..."
-    sudo apt-get autoremove -y
-    sudo apt-get autoclean -y
     echo "L'envoi des images docker est en cours en arrière-plan..."
     echo "**************************************************************************************************"
     echo "Faire 'vagrant ssh' pour se connecter"

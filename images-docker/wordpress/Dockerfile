@@ -7,56 +7,50 @@ LABEL maintainer="josephjeanmardochee@gmail.com"
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Europe/Paris
 
-RUN apt-get update && apt-get upgrade -y
+# Ajout du dépôt PHP 8.1 (si pas déjà dispo dans base)
+RUN apt-get update && apt-get install -y software-properties-common \
+    && add-apt-repository ppa:ondrej/php -y
 
-# Installation des dépendances nécessaires et de PHP 8.1
-RUN apt-get install -y --no-install-recommends \
+# Installation Apache, PHP 8.1 et extensions
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
     wget \
     curl \
-    gnupg \
+    unzip \
     apache2 \
     libapache2-mod-php8.1 \
-    php8.1-mysql \
-    php8.1-fpm \
     php8.1-cli \
+    php8.1-fpm \
+    php8.1-mysql \
     php8.1-gd \
     php8.1-xml \
     php8.1-mbstring \
     php8.1-intl \
-    php8.1-zip \
-    unzip
+    php8.1-zip && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Activation des modules Apache nécessaires
+# Activation du module rewrite
 RUN a2enmod rewrite
 
-# Téléchargement et extraction de WordPress 6.2.2
+# Téléchargement et installation de WordPress 6.2.2
 RUN wget https://wordpress.org/wordpress-6.2.2.tar.gz && \
-    tar -xzvf wordpress-6.2.2.tar.gz -C /var/www/html/ && \
-    rm wordpress-6.2.2.tar.gz
+    tar -xzf wordpress-6.2.2.tar.gz && \
+    mv wordpress/* /var/www/html/ && \
+    rm -rf wordpress wordpress-6.2.2.tar.gz
 
-# Renommage du répertoire WordPress
-RUN mv /var/www/html/wordpress/* /var/www/html/ && \
-    rm -rf /var/www/html/wordpress
+# Suppression de l’index par défaut
+RUN rm -f /var/www/html/index.html
 
-# Configuration de l'hôte virtuel Apache par défaut
+# Ajout de la configuration Apache personnalisée (si fournie)
 COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
-RUN a2ensite 000-default.conf
-RUN a2dissite 000-default.conf
 
-# Configuration des permissions (ajustez selon vos besoins)
-RUN chown -R www-data:www-data /var/www/html/
-RUN find /var/www/html/ -type d -exec chmod 755 {} +
-RUN find /var/www/html/ -type f -exec chmod 644 {} +
-RUN chown -R www-data:www-data /var/log/apache2/
-
-# Configuration PHP (facultatif, personnalisez selon vos besoins)
-# COPY php.ini /usr/local/etc/php/
-
-# Nettoyage
-RUN apt-get autoremove -y && apt-get clean
+# Configuration des droits
+RUN chown -R www-data:www-data /var/www/html && \
+    find /var/www/html -type d -exec chmod 755 {} \; && \
+    find /var/www/html -type f -exec chmod 644 {} \;
 
 WORKDIR /var/www/html
 
 EXPOSE 80
 
-CMD ["apache2-foreground"]
+CMD ["apachectl", "-D", "FOREGROUND"]
