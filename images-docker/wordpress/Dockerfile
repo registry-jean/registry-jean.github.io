@@ -5,34 +5,40 @@ FROM ubuntu:20.04
 LABEL maintainer="josephjeanmardochee@gmail.com"
 
 ARG DEBIAN_FRONTEND=noninteractive
-ENV TZ=Europe/Paris 
+ENV TZ=Europe/Paris
 
 RUN apt-get update && apt-get upgrade -y
 
-# Installation des dépendances pour WordPress
+# Installation des dépendances nécessaires et de PHP 8.1
 RUN apt-get install -y --no-install-recommends \
     wget \
     curl \
     gnupg \
     apache2 \
-    libapache2-mod-php \
-    php-mysql \
-    php-fpm \
-    php-cli \
-    php-gd \
-    php-xml \
-    php-mbstring \
-    php-intl \
-    php-zip \
+    libapache2-mod-php8.1 \
+    php8.1-mysql \
+    php8.1-fpm \
+    php8.1-cli \
+    php8.1-gd \
+    php8.1-xml \
+    php8.1-mbstring \
+    php8.1-intl \
+    php8.1-zip \
     unzip
 
-# Téléchargement et installation de WordPress
-RUN wget https://wordpress.org/latest.tar.gz && \
-    tar -xzvf latest.tar.gz -C /var/www/html/ && \
-    rm latest.tar.gz
-
-# Configuration d'Apache
+# Activation des modules Apache nécessaires
 RUN a2enmod rewrite
+
+# Téléchargement et extraction de WordPress 6.2.2
+RUN wget https://wordpress.org/wordpress-6.2.2.tar.gz && \
+    tar -xzvf wordpress-6.2.2.tar.gz -C /var/www/html/ && \
+    rm wordpress-6.2.2.tar.gz
+
+# Renommage du répertoire WordPress
+RUN mv /var/www/html/wordpress/* /var/www/html/ && \
+    rm -rf /var/www/html/wordpress
+
+# Configuration de l'hôte virtuel Apache par défaut
 COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
 RUN a2ensite 000-default.conf
 RUN a2dissite 000-default.conf
