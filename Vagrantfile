@@ -18,9 +18,9 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder ".", "/home/vagrant/workspace", type: "virtualbox"
   config.vm.provision "shell", inline: <<-SHELL
     echo "Nettoyer les paquets inutiles pour libérer de l'espace..."
+    sudo apt-get autoremove -y && sudo apt-get autoclean -y
     sudo apt-get update -y && sudo apt-get upgrade -y
-    sudo apt-get autoremove -y
-    sudo apt-get autoclean -y
+    sudo apt-get autoremove -y && sudo apt-get autoclean -y
     ln -sf /home/vagrant/workspace/.env /home/vagrant/.env
   SHELL
 
@@ -37,6 +37,6 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: <<-SHELL
     echo "L'envoi des images docker est en cours en arrière-plan..."
     echo "**************************************************************************************************"
-    echo "Faire 'vagrant ssh' pour se connecter"
+    echo "'vagrant ssh' pour se connecter"
   SHELL
 end
