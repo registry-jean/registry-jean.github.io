@@ -7,7 +7,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Europe/Paris
 
 RUN apt-get update && apt-get upgrade -y && \
-    apt-get install -y wget curl gnupg lsb-release && \
+    apt-get install -y wget curl gnupg ca-certificates lsb-release && \
     curl -fsSL https://repo.mysql.com/RPM-GPG-KEY-mysql-2022 | gpg --dearmor -o /usr/share/keyrings/mysql.gpg && \
     echo "deb [signed-by=/usr/share/keyrings/mysql.gpg] http://repo.mysql.com/apt/ubuntu focal mysql-8.0" > /etc/apt/sources.list.d/mysql.list && \
     apt-get update && apt-get install -y mysql-server && \
